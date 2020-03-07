@@ -1,5 +1,6 @@
 #/usr/bin/python3
 from functools import reduce
+import socket
 
 MAX_UDP_PACKET_SIZE:int = 524
 
@@ -64,4 +65,3 @@ def print_udp_header(raw:bytes):
 #prints an unsigned value to binary with a default size of 32 bites
 def int_to_binary(value:int, size=32):
     return reduce(lambda agg, elm: str((value >> elm) & 0x1) + agg, range(size), '')
-
