@@ -1,6 +1,8 @@
+#/usr/bin/python3
 
 import sys
 import socket
+from updpacket import *
 
 ERROR_EXIT_CODE = 0
 RECV_BUFFER_SIZE = 4096
@@ -33,11 +35,9 @@ def run_udp_server(socket: socket.socket):
         (buffer, _) = socket.recvfrom(RECV_BUFFER_SIZE)
         
         while (len(buffer) > 0):
-            print(len(buffer))
             (next, _) = socket.recvfrom(RECV_BUFFER_SIZE)
             buffer = next
         
-
         file_index += 1
 
 if __name__ == "__main__":
