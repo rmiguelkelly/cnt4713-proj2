@@ -1,26 +1,28 @@
 #/usr/bin/python3
 from functools import reduce
 
+MAX_UDP_PACKET_SIZE:int = 524
+
 #Creates the udp packet header 
-def create_udp_packet_header(ack:int, syn:int, connection_id:int, a:bool, s:bool, f:bool):
+def create_udp_packet_header(seq:int, ack:int, connection_id:int, ACK:bool, SYN:bool, FIN:bool):
 
     options = 0x0
 
-    options |= 0b001 if f else 0b000
-    options |= 0b010 if s else 0b000
-    options |= 0b100 if a else 0b000
+    options |= 0b001 if FIN else 0b000
+    options |= 0b010 if SYN else 0b000
+    options |= 0b100 if ACK else 0b000
 
     udp_header = [
         #=======================================================
-        (ack >> 0x18) & 0xFF, # ack part 1 FIRST FIELD
-        (ack >> 0x10) & 0xFF, # ack part 2
-        (ack >> 0x08) & 0xFF, # ack part 3
-        (ack >> 0x00) & 0xFF, # ack part 4
+        (seq >> 0x18) & 0xFF, # ack part 1 FIRST FIELD
+        (seq >> 0x10) & 0xFF, # ack part 2
+        (seq >> 0x08) & 0xFF, # ack part 3
+        (seq >> 0x00) & 0xFF, # ack part 4
         #=======================================================
-        (syn >> 0x18) & 0xFF, # syn part 1 SECOND FIELD
-        (syn >> 0x10) & 0xFF, # syn part 2
-        (syn >> 0x08) & 0xFF, # syn part 3
-        (syn >> 0x00) & 0xFF, # syn part 4
+        (ack >> 0x18) & 0xFF, # syn part 1 SECOND FIELD
+        (ack >> 0x10) & 0xFF, # syn part 2
+        (ack >> 0x08) & 0xFF, # syn part 3
+        (ack >> 0x00) & 0xFF, # syn part 4
         #=======================================================
         (connection_id >> 0x08) & 0xFF,
         (connection_id >> 0x00) & 0xFF,
@@ -34,13 +36,13 @@ def create_udp_packet_header(ack:int, syn:int, connection_id:int, a:bool, s:bool
 #decodes a udp packet header and returns a tuple
 def decode_udp_packet_header(raw:bytes):
     
-    ack = raw[3] | raw[2] << 0x08 | raw[1] << 0x10 | raw[0] << 0x18
+    seq = raw[3] | raw[2] << 0x08 | raw[1] << 0x10 | raw[0] << 0x18
 
-    syn = raw[7] | raw[6] << 0x08 | raw[5] << 0x10 | raw[4] << 0x18
+    ack = raw[7] | raw[6] << 0x08 | raw[5] << 0x10 | raw[4] << 0x18
 
     conn_id = raw[9] | raw[8] << 0x08
 
-    return (ack, syn, conn_id, raw[11] >> 0b10 & 0x1, raw[11] >> 0b01 & 0x1, raw[11] >> 0b00 & 0x1)
+    return (seq, ack, conn_id, raw[11] >> 0b10 & 0x1, raw[11] >> 0b01 & 0x1, raw[11] >> 0b00 & 0x1)
 
 #prints the header, for debugging
 def print_udp_header(raw:bytes):

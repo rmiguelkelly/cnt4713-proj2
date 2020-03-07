@@ -1,17 +1,15 @@
 
 import sys
 import socket
+import updpacket
 
 ERROR_EXIT_CODE = 0
-SEND_BUFFER_SIZE = 4096
 
-FILEPATH = "C:/Users/rkelly/Desktop/quotes/Quotation #0221944508 - DEPT OF TRANSPORTATION.PDF"
+FILEPATH = "/Users/ronankelly/Desktop/ssh.txt"
 
 #Creates a UDP socket that is bound to an endpoint
 def create_udp_socket():
-    
     client = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM, proto=socket.IPPROTO_UDP)
-
     return client
 
 def get_file(filename:str):
@@ -25,13 +23,18 @@ def get_file(filename:str):
 def send_file_to_socket(path:str, socket: socket.socket, address):
     file = get_file(path)
 
-    buffer = file.read(SEND_BUFFER_SIZE)
+    sequence_number = 0
 
-    socket.sendto(buffer, address)
+    udp_header = updpacket.create_udp_packet_header(sequence_number, 0x00,  0, False, False, False)
+    buffer = file.read(updpacket.MAX_UDP_PACKET_SIZE)
+    socket.sendto(udp_header + buffer, address)
+    sequence_number += 1
 
     while (len(buffer) > 0):
-        buffer = file.read(SEND_BUFFER_SIZE)
-        socket.sendto(buffer, address)
+        udp_header = updpacket.create_udp_packet_header(sequence_number, 0x00,  0, False, False, False)
+        buffer = file.read(updpacket.MAX_UDP_PACKET_SIZE)
+        socket.sendto(udp_header + buffer, address)
+        sequence_number += 1
 
 
 if __name__ == "__main__":
@@ -39,7 +42,10 @@ if __name__ == "__main__":
     
     endpoint = ('localhost', 3333)
     
-    send_file_to_socket(FILEPATH, socket, endpoint)
+    try:
+        send_file_to_socket(FILEPATH, socket, endpoint)
+    except:
+        sys.stderr.write("ERROR: unable to send file to remote host")
 
     socket.close()
 

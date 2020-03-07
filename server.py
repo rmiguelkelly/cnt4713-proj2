@@ -2,10 +2,9 @@
 
 import sys
 import socket
-from updpacket import *
+import updpacket
 
 ERROR_EXIT_CODE = 0
-RECV_BUFFER_SIZE = 4096
 
 #Creates a UDP socket that is bound to an endpoint
 def create_udp_socket(host = '127.0.0.1', port = 3333):
@@ -32,11 +31,21 @@ def run_udp_server(socket: socket.socket):
     file_index = 0
     
     while is_running:
-        (buffer, _) = socket.recvfrom(RECV_BUFFER_SIZE)
+
+        file = open("/Users/ronankelly/Desktop/data/{}.txt".format(file_index), 'wb')
+
+        (buffer, _) = socket.recvfrom(updpacket.MAX_UDP_PACKET_SIZE)
+        print(len(buffer))
+        file.write(buffer[12:])
         
-        while (len(buffer) > 0):
-            (next, _) = socket.recvfrom(RECV_BUFFER_SIZE)
+        while (len(buffer) > 12):
+            (next, _) = socket.recvfrom(updpacket.MAX_UDP_PACKET_SIZE)
             buffer = next
+            file.write(buffer[12:])
+            print(len(buffer))
+        
+        print("Created File")
+        file.close()
         
         file_index += 1
 
