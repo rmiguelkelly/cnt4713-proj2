@@ -3,7 +3,7 @@ import sys
 import socket
 import updpacket
 
-ERROR_EXIT_CODE = 0
+ERROR_EXIT_CODE = -1
 
 #Creates a UDP socket that is bound to an endpoint
 def create_udp_socket():

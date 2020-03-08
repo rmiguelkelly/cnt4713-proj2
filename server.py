@@ -6,7 +6,7 @@ import updpacket
 import signal
 import os
 
-ERROR_EXIT_CODE = 0
+ERROR_EXIT_CODE = -1
 
 def perform_handshake_server(socket:socket.socket):
     ip = updpacket.decode_udp_packet_header(socket.recvfrom(12))
