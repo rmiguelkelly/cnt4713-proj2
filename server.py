@@ -3,8 +3,15 @@
 import sys
 import socket
 import updpacket
+import signal
+import os
 
 ERROR_EXIT_CODE = 0
+
+def perform_handshake_server(socket:socket.socket):
+    ip = updpacket.decode_udp_packet_header(socket.recvfrom(12))
+    initial_res = updpacket.create_udp_packet_header(42, 0, 0, False, True, False)
+
 
 #Creates a UDP socket that is bound to an endpoint
 def create_udp_socket(host = '127.0.0.1', port = 3333):
@@ -24,28 +31,29 @@ def create_udp_socket(host = '127.0.0.1', port = 3333):
 
     return server
 
-def run_udp_server(socket: socket.socket, path:str):
+def run_udp_server(sock: socket.socket, path:str):
 
-    is_running = True
+    if (os.path.exists(path) == False):
+        print("fuck")
+        os.mkdir(path)
 
     file_index = 0
-    
-    while is_running:
+    while True:
 
-        (buffer, _) = socket.recvfrom(updpacket.MAX_UDP_PACKET_SIZE)
-        print(len(buffer))
-        file = open("{}/{}.txt".format(path, file_index), 'wb')
+        (buffer, _) = sock.recvfrom(524)
+
+        write_path = os.path.join(path, '{}.file'.format(file_index))
+        file = open(write_path, 'wb')
         file.write(buffer[12:])
-        
+
         while (len(buffer) > 12):
-            (next, _) = socket.recvfrom(updpacket.MAX_UDP_PACKET_SIZE)
+            (next, _) = sock.recvfrom(524)
             buffer = next
             file.write(buffer[12:])
-            print(len(buffer))
-        
-        print("Created File")
+
         file.close()
-        
+        print("file created")
+
         file_index += 1
 
 if __name__ == "__main__":
