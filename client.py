@@ -44,8 +44,13 @@ if __name__ == "__main__":
     if (len(sys.argv) != 4):
         sys.stderr.write("ERROR: Invalid argument list\n")
         sys.exit(ERROR_EXIT_CODE)
+
+    port = int(sys.argv[2])
+    if (port <= 0 or port >= 65535):
+        sys.stderr.write("ERROR: Port should be between 0 and 65535\n")
+        exit(-1)
     
-    endpoint = (sys.argv[1], int(sys.argv[2]))
+    endpoint = (sys.argv[1], port)
     
     try:
         send_file_to_socket(sys.argv[3], socket, endpoint)
