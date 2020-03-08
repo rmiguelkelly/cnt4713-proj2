@@ -43,7 +43,7 @@ def decode_udp_packet_header(raw:bytes):
 
     conn_id = raw[9] | raw[8] << 0x08
 
-    return (seq, ack, conn_id, raw[11] >> 0b10 & 0x1, raw[11] >> 0b01 & 0x1, raw[11] >> 0b00 & 0x1)
+    return (seq, ack, conn_id, (raw[11] >> 0b10 & 0x1) == 1, (raw[11] >> 0b01 & 0x1) == True, (raw[11] >> 0b00 & 0x1) == True)
 
 #prints the header, for debugging
 def print_udp_header(raw:bytes):

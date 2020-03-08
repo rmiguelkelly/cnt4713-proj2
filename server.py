@@ -34,7 +34,6 @@ def create_udp_socket(host = '127.0.0.1', port = 3333):
 def run_udp_server(sock: socket.socket, path:str):
 
     if (os.path.exists(path) == False):
-        print("fuck")
         os.mkdir(path)
 
     file_index = 0
@@ -44,12 +43,12 @@ def run_udp_server(sock: socket.socket, path:str):
 
         write_path = os.path.join(path, '{}.file'.format(file_index))
         file = open(write_path, 'wb')
-        file.write(buffer[12:])
+        file.write(buffer)
 
-        while (len(buffer) > 12):
+        while (len(buffer) > 0):
             (next, _) = sock.recvfrom(524)
             buffer = next
-            file.write(buffer[12:])
+            file.write(buffer)
 
         file.close()
         print("file created")
